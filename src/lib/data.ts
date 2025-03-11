@@ -1,4 +1,3 @@
-
 export type LeadSource = 
   | "Instagram" 
   | "Facebook" 
@@ -15,6 +14,11 @@ export type LeadStatus =
   | "Follow-Up" 
   | "Converted";
 
+export type PackageType =
+  | "Cozy"
+  | "Luxurious" 
+  | "Grand";
+
 export interface Lead {
   id: string;
   name: string;
@@ -25,6 +29,9 @@ export interface Lead {
   status: LeadStatus;
   notes?: string;
   followUpDate?: Date;
+  packageType?: PackageType;
+  checkInDate?: Date;
+  checkOutDate?: Date;
 }
 
 // Mock data generator
@@ -52,6 +59,7 @@ const statuses: LeadStatus[] = [
 
 export const generateMockLeads = (count: number): Lead[] => {
   const leads: Lead[] = [];
+  const packageTypes: PackageType[] = ["Cozy", "Luxurious", "Grand"];
   
   for (let i = 0; i < count; i++) {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
@@ -61,6 +69,17 @@ export const generateMockLeads = (count: number): Lead[] => {
     if (status === "Follow-Up") {
       followUpDate = new Date(dateOfInquiry);
       followUpDate.setDate(followUpDate.getDate() + Math.floor(Math.random() * 14) + 1);
+    }
+    
+    let checkInDate: Date | undefined;
+    let checkOutDate: Date | undefined;
+    
+    if (Math.random() > 0.4) {
+      checkInDate = new Date(dateOfInquiry);
+      checkInDate.setDate(checkInDate.getDate() + Math.floor(Math.random() * 30) + 14);
+      
+      checkOutDate = new Date(checkInDate);
+      checkOutDate.setDate(checkOutDate.getDate() + Math.floor(Math.random() * 7) + 1);
     }
     
     leads.push({
@@ -75,6 +94,9 @@ export const generateMockLeads = (count: number): Lead[] => {
         ? `This lead is interested in booking for ${Math.floor(Math.random() * 10) + 1} people.` 
         : undefined,
       followUpDate,
+      packageType: Math.random() > 0.3 ? packageTypes[Math.floor(Math.random() * packageTypes.length)] : undefined,
+      checkInDate,
+      checkOutDate
     });
   }
   
@@ -121,7 +143,6 @@ export const getLeadsByMonth = (leads: Lead[]) => {
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const result: Record<string, number> = {};
   
-  // Initialize last 6 months
   for (let i = 0; i < 6; i++) {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
@@ -129,7 +150,6 @@ export const getLeadsByMonth = (leads: Lead[]) => {
     result[monthKey] = 0;
   }
   
-  // Count leads by month
   leads.forEach(lead => {
     const inquiryDate = new Date(lead.dateOfInquiry);
     if (inquiryDate >= sixMonthsAgo) {
@@ -140,7 +160,6 @@ export const getLeadsByMonth = (leads: Lead[]) => {
     }
   });
   
-  // Convert to array and sort by month
   const monthOrder = Object.keys(result).map(month => monthNames.indexOf(month));
   const sortedMonths = Object.keys(result).sort((a, b) => {
     return monthNames.indexOf(a) - monthNames.indexOf(b);

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -31,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Lead, LeadSource, LeadStatus } from "@/lib/data";
+import { Lead, LeadSource, LeadStatus, PackageType } from "@/lib/data";
 import { toast } from "sonner";
 
 const leadFormSchema = z.object({
@@ -43,6 +42,9 @@ const leadFormSchema = z.object({
   status: z.enum(["Interested", "Not Interested", "Follow-Up", "Converted"]),
   notes: z.string().optional().or(z.literal("")),
   followUpDate: z.date().optional(),
+  packageType: z.enum(["Cozy", "Luxurious", "Grand"]).optional(),
+  checkInDate: z.date().optional(),
+  checkOutDate: z.date().optional(),
 });
 
 interface LeadFormProps {
@@ -63,10 +65,14 @@ export function LeadForm({ initialData, onSubmit, isLoading = false }: LeadFormP
       status: initialData?.status || "Interested",
       notes: initialData?.notes || "",
       followUpDate: initialData?.followUpDate,
+      packageType: initialData?.packageType,
+      checkInDate: initialData?.checkInDate,
+      checkOutDate: initialData?.checkOutDate
     },
   });
 
   const leadStatus = form.watch("status");
+  const checkInDate = form.watch("checkInDate");
 
   return (
     <Form {...form}>
@@ -147,6 +153,32 @@ export function LeadForm({ initialData, onSubmit, isLoading = false }: LeadFormP
 
           <FormField
             control={form.control}
+            name="packageType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Package Type (Optional)</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a package" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Cozy">Cozy</SelectItem>
+                    <SelectItem value="Luxurious">Luxurious</SelectItem>
+                    <SelectItem value="Grand">Grand</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="dateOfInquiry"
             render={({ field }) => (
               <FormItem className="flex flex-col">
@@ -188,23 +220,87 @@ export function LeadForm({ initialData, onSubmit, isLoading = false }: LeadFormP
 
           <FormField
             control={form.control}
-            name="status"
+            name="checkInDate"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Interested">Interested</SelectItem>
-                    <SelectItem value="Not Interested">Not Interested</SelectItem>
-                    <SelectItem value="Follow-Up">Follow-Up</SelectItem>
-                    <SelectItem value="Converted">Converted</SelectItem>
-                  </SelectContent>
-                </Select>
+              <FormItem className="flex flex-col">
+                <FormLabel>Check-In Date (Optional)</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="checkOutDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Check-Out Date (Optional)</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                        disabled={!checkInDate}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => 
+                        !checkInDate || date < checkInDate
+                      }
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  {!checkInDate && "Select a check-in date first"}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
