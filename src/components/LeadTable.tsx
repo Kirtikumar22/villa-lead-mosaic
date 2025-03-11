@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { 
   createColumnHelper, 
-  ColumnDef 
+  type ColumnDef 
 } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { StatusBadge } from "@/components/StatusBadge";
