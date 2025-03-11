@@ -39,7 +39,7 @@ const leadFormSchema = z.object({
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   source: z.enum(["Instagram", "Facebook", "Website", "Referral", "WhatsApp", "Email", "Phone", "Other"]),
   dateOfInquiry: z.date(),
-  status: z.enum(["Interested", "Not Interested", "Follow-Up", "Converted"]),
+  status: z.enum(["New", "Contacted", "Follow-Up", "Booked", "Not Interested"]),
   notes: z.string().optional().or(z.literal("")),
   followUpDate: z.date().optional(),
   packageType: z.enum(["Cozy", "Luxurious", "Grand"]).optional(),
@@ -62,7 +62,7 @@ export function LeadForm({ initialData, onSubmit, isLoading = false }: LeadFormP
       email: initialData?.email || "",
       source: initialData?.source || "Website",
       dateOfInquiry: initialData?.dateOfInquiry || new Date(),
-      status: initialData?.status || "Interested",
+      status: initialData?.status || "New",
       notes: initialData?.notes || "",
       followUpDate: initialData?.followUpDate,
       packageType: initialData?.packageType,
@@ -301,6 +301,31 @@ export function LeadForm({ initialData, onSubmit, isLoading = false }: LeadFormP
                 <FormDescription>
                   {!checkInDate && "Select a check-in date first"}
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="New">New</SelectItem>
+                    <SelectItem value="Contacted">Contacted</SelectItem>
+                    <SelectItem value="Follow-Up">Follow-Up</SelectItem>
+                    <SelectItem value="Booked">Booked</SelectItem>
+                    <SelectItem value="Not Interested">Not Interested</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

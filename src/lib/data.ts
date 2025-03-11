@@ -9,10 +9,11 @@ export type LeadSource =
   | "Other";
 
 export type LeadStatus = 
-  | "Interested" 
-  | "Not Interested" 
+  | "New"
+  | "Contacted"
   | "Follow-Up" 
-  | "Converted";
+  | "Booked"
+  | "Not Interested";
 
 export type PackageType =
   | "Cozy"
@@ -51,10 +52,11 @@ const sources: LeadSource[] = [
 ];
 
 const statuses: LeadStatus[] = [
-  "Interested", 
-  "Not Interested", 
+  "New",
+  "Contacted", 
   "Follow-Up", 
-  "Converted"
+  "Booked",
+  "Not Interested"
 ];
 
 export const generateMockLeads = (count: number): Lead[] => {
@@ -109,10 +111,11 @@ export const mockLeads = generateMockLeads(50);
 // Analytics data functions
 export const getLeadsByStatus = (leads: Lead[]) => {
   const result = {
-    Interested: 0,
-    "Not Interested": 0,
+    New: 0,
+    Contacted: 0,
     "Follow-Up": 0,
-    Converted: 0
+    Booked: 0,
+    "Not Interested": 0
   };
   
   leads.forEach(lead => {
@@ -185,7 +188,7 @@ export const getFollowUpsThisWeek = (leads: Lead[]) => {
 
 export const getTotalLeadsStats = (leads: Lead[]) => {
   const totalLeads = leads.length;
-  const convertedLeads = leads.filter(lead => lead.status === "Converted").length;
+  const convertedLeads = leads.filter(lead => lead.status === "Booked").length;
   const conversionRate = totalLeads > 0 ? (convertedLeads / totalLeads) * 100 : 0;
   const pendingFollowUps = leads.filter(lead => lead.status === "Follow-Up").length;
   
