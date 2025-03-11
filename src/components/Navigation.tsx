@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,9 @@ import {
   LineChart,
   PlusCircle,
   Menu,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import {
   Sheet,
@@ -26,7 +28,25 @@ interface NavItem {
 export function Navigation() {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Load collapsed state from localStorage on component mount
+  useEffect(() => {
+    const savedCollapsedState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapsedState) {
+      setIsCollapsed(JSON.parse(savedCollapsedState));
+    }
+  }, []);
+
+  // Save collapsed state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
   const navItems: NavItem[] = [
     {
@@ -56,7 +76,7 @@ export function Navigation() {
   const renderNavItems = () => (
     <>
       <div className="flex items-center mb-8">
-        <h1 className="text-2xl font-light">Villa Gulposh</h1>
+        {!isCollapsed && <h1 className="text-2xl font-light">Villa Gulposh</h1>}
       </div>
       <div className="flex flex-col gap-2">
         {navItems.map((item) => (
@@ -64,17 +84,18 @@ export function Navigation() {
             key={item.href}
             variant={isActive(item.href) ? "default" : "ghost"}
             className={cn(
-              "justify-start",
+              isCollapsed ? "justify-center px-2" : "justify-start",
               isActive(item.href) 
                 ? "bg-villa-gold text-white hover:bg-villa-darkgold" 
                 : "hover:bg-villa-beige"
             )}
             asChild
             onClick={() => setIsSheetOpen(false)}
+            title={isCollapsed ? item.label : undefined}
           >
             <Link to={item.href}>
               {item.icon}
-              {item.label}
+              {!isCollapsed && <span>{item.label}</span>}
             </Link>
           </Button>
         ))}
@@ -105,8 +126,21 @@ export function Navigation() {
   }
 
   return (
-    <div className="h-screen w-64 p-6 border-r border-villa-taupe/20 flex flex-col animate-fade-in">
+    <div className={cn(
+      "h-screen border-r border-villa-taupe/20 flex flex-col animate-fade-in transition-all duration-300",
+      isCollapsed ? "w-16 p-3" : "w-64 p-6"
+    )}>
       {renderNavItems()}
+      <div className="mt-auto flex justify-center pt-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleSidebar}
+          className="hover:bg-villa-beige"
+        >
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
+      </div>
     </div>
   );
 }
