@@ -127,7 +127,7 @@ export function Navigation() {
 
   return (
     <div className={cn(
-      "h-screen border-r border-villa-taupe/20 flex flex-col animate-fade-in transition-all duration-300",
+      "h-screen border-r border-villa-taupe/20 flex flex-col animate-fade-in transition-all duration-300 bg-[#1A1F2C] text-white",
       isCollapsed ? "w-16 p-3" : "w-64 p-6"
     )}>
       {renderNavItems()}
@@ -136,7 +136,7 @@ export function Navigation() {
           variant="ghost" 
           size="icon" 
           onClick={toggleSidebar}
-          className="hover:bg-villa-beige"
+          className="hover:bg-villa-beige text-white"
         >
           {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>

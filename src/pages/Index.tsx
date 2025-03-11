@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { LeadTable } from "@/components/LeadTable";
 import { Navigation } from "@/components/Navigation";
 import { Lead, mockLeads, LeadStatus } from "@/lib/data";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,

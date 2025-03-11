@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -35,13 +34,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface LeadTableProps {
   leads: Lead[];
   onDeleteLead?: (id: string) => void;
+  showActionIcons?: boolean;
 }
 
-export function LeadTable({ leads, onDeleteLead }: LeadTableProps) {
+export function LeadTable({ leads, onDeleteLead, showActionIcons = false }: LeadTableProps) {
   const navigate = useNavigate();
   const columnHelper = createColumnHelper<Lead>();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -115,38 +116,74 @@ export function LeadTable({ leads, onDeleteLead }: LeadTableProps) {
       cell: (info) => {
         const lead = info.row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setSelectedLead(lead)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate(`/edit-lead/${lead.id}`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => {
-                  if (onDeleteLead) {
-                    onDeleteLead(lead.id);
-                    toast.success("Lead deleted successfully");
-                  }
-                }}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className={cn("flex items-center gap-2", 
+            showActionIcons ? "justify-start" : "justify-end")}>
+            {showActionIcons ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-villa-gold"
+                  onClick={() => setSelectedLead(lead)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-villa-gold"
+                  onClick={() => navigate(`/edit-lead/${lead.id}`)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-red-600"
+                  onClick={() => {
+                    if (onDeleteLead) {
+                      onDeleteLead(lead.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[160px]">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setSelectedLead(lead)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/edit-lead/${lead.id}`)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => {
+                      if (onDeleteLead) {
+                        onDeleteLead(lead.id);
+                        toast.success("Lead deleted successfully");
+                      }
+                    }}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         );
       },
     }),
